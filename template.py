@@ -1,12 +1,5 @@
 import warnings
 warnings.filterwarnings('ignore')
-import albumentations
-from albumentations import (
-    Compose, OneOf, Normalize, Resize, RandomResizedCrop, RandomCrop, HorizontalFlip, VerticalFlip, 
-    RandomBrightness, RandomContrast, RandomBrightnessContrast, Rotate, ShiftScaleRotate, Cutout, 
-    IAAAdditiveGaussianNoise, Transpose, HueSaturationValue, 
-    )
-from albumentations.pytorch import ToTensorV2
 import torch
 import math
 import os
@@ -14,11 +7,9 @@ import random
 import numpy as np
 import pandas as pd
 from sklearn.metrics import accuracy_score
-from torch.utils.data import DataLoader
 from tqdm import tqdm
-from collections import Counter
 import ttach
-from torch.utils.data import DataLoader,Dataset
+from torch.utils.data import DataLoader, Dataset
 import torchvision
 import torchvision.transforms as transforms
 import torch.nn as nn
@@ -26,7 +17,8 @@ import torch.nn as nn
 class template:
     def __init__(self, class_num: int, train_dataset: Dataset, valid_dataset: Dataset, 
                  lr = 5e-4, batch_size = 16, num_workers = 4, drop_last = True, seed = 'seed', set_seed = True,
-                 model = 'HarDNet68', loss_function = 'Cross Entropy', optimizer = 'AdamW', pretrained = True, save_best = True,
+                 model = 'HarDNet68', loss_function = 'Cross Entropy', optimizer = 'AdamW',
+                 pretrained = True, save_best = True, use_ttach = False,
                  device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')):
         if set_seed:
             self.set_seed(str(seed))
@@ -34,12 +26,15 @@ class template:
         self.save_best = save_best
         self.class_num = class_num
         self.model = self.set_model(model, pretrained)
+        if use_ttach:
+            self.use_ttach = use_ttach
+            self.ttach_model = ttach.ClassificationTTAWrapper(self.model, ttach.aliases.d4_transform(), merge_mode='mean')
         self.optimizer = self.set_optimizer(optimizer, lr)
         self.loss_function = self.set_loss_function(loss_function)
         self.train_dataset = train_dataset
         self.valid_dataset = valid_dataset
-        self.train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size = batch_size, shuffle = True, num_workers = num_workers,  drop_last = drop_last)
-        self.valid_dataloader = torch.utils.data.DataLoader(valid_dataset, batch_size = batch_size, shuffle = False, num_workers = num_workers,  drop_last = drop_last)
+        self.train_dataloader = DataLoader(train_dataset, batch_size = batch_size, shuffle = True, num_workers = num_workers,  drop_last = drop_last)
+        self.valid_dataloader = DataLoader(valid_dataset, batch_size = batch_size, shuffle = False, num_workers = num_workers,  drop_last = drop_last)
 
     def set_seed(self, seed):
         seed = math.prod([ord(i) for i in seed])%(2**32)
@@ -107,6 +102,8 @@ class template:
 
     def set_optimizer(self, optimizer_name, lr):
         optimizer_list = {
+            'SGD': torch.optim.SGD(self.model.parameters(), lr = lr, momentum = 0.9, nesterov = True),
+            'Adam': torch.optim.Adam(self.model.parameters(), lr = lr),
             'AdamW': torch.optim.AdamW(self.model.parameters(), lr = lr)
         }
         if optimizer_name in optimizer_list:
@@ -161,6 +158,9 @@ class template:
                 tqdm_loader.set_postfix(loss = loss, average_loss = total_loss/(index + 1), average_accuracy = total_accuracy/(index + 1))
     
     def valid_epoch(self, best_accuracy, best_loss):
+        model = self.model
+        if self.use_ttach:
+            model = self.ttach_model
         model.eval()
         total_loss = 0
         total_accuracy = 0
@@ -169,7 +169,7 @@ class template:
                 for index, (image, label) in enumerate(tqdm_loader):
                     image = image.to(device = self.device)
                     label = torch.tensor(label.to(device = self.device), dtype = torch.long)
-                    predict = self.model(image).to(device = self.device)
+                    predict = model(image).to(device = self.device)
                     loss = self.loss_function(predict, label)
                     predict = predict.cpu().detach().argmax(dim = 1)
 
@@ -210,15 +210,15 @@ class template:
         else:
             return self.model
 
-# if __name__ == '__main__':
-#     transform = transforms.Compose([
-#     transforms.ToTensor(),
-#     transforms.Normalize(
-#             mean = [0.485, 0.456, 0.406],
-#             std = [0.229, 0.224, 0.225]
-#         )
-#     ])
-#     trainset = torchvision.datasets.CIFAR10(root = './data', train = True, download = True, transform = transform)
-#     validset = torchvision.datasets.CIFAR10(root = './data', train = False, download = True, transform = transform)
-#     model = template(model = 'HarDNet68', loss_function = 'Cross Entropy', optimizer = 'AdamW', train_dataset = trainset, valid_dataset = validset, class_num = 10)
-#     model.get_model_list()
+if __name__ == '__main__':
+    transform = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Normalize(
+            mean = [0.485, 0.456, 0.406],
+            std = [0.229, 0.224, 0.225]
+        )
+    ])
+    trainset = torchvision.datasets.CIFAR10(root = './data', train = True, download = True, transform = transform)
+    validset = torchvision.datasets.CIFAR10(root = './data', train = False, download = True, transform = transform)
+    model = template(model = 'HarDNet68', loss_function = 'Cross Entropy', optimizer = 'AdamW', train_dataset = trainset, valid_dataset = validset, class_num = 10, use_ttach = True)
+    model.train_and_valid()
