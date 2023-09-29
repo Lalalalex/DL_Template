@@ -22,7 +22,7 @@ transforms.Normalize(
 trainset = torchvision.datasets.CIFAR10(root = './data', train = True, download = True, transform = transform)
 validset = torchvision.datasets.CIFAR10(root = './data', train = False, download = True, transform = transform)
 
-model = template(model = 'HarDNet68', loss_function = 'Cross Entropy', optimizer = 'AdamW', train_dataset = trainset, valid_dataset = validset, class_num = 10, use_ttach = True)
+model = Template(class_num = 10, train_dataset = trainset, valid_dataset = validset)
 model.train_and_valid()
 #predict = model.test(testset)
 ```
