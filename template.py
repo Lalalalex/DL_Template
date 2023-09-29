@@ -10,11 +10,9 @@ from sklearn.metrics import accuracy_score
 from tqdm import tqdm
 import ttach
 from torch.utils.data import DataLoader, Dataset
-import torchvision
-import torchvision.transforms as transforms
 import torch.nn as nn
 
-class template:
+class Template:
     def __init__(self, class_num: int, train_dataset: Dataset, valid_dataset: Dataset, 
                  lr = 5e-4, batch_size = 16, num_workers = 4, drop_last = True, seed = 'seed', set_seed = True,
                  model = 'HarDNet68', loss_function = 'Cross Entropy', optimizer = 'AdamW',
@@ -115,12 +113,13 @@ class template:
         return self.optimizer
     
     def get_optimizer_list(self):
-        optimizer_list = ['AdamW']
+        optimizer_list = ['SGD', 'Adam', 'AdamW']
         print('Acceptable optimizers: ', optimizer_list)
     
     def set_loss_function(self, loss_function_name):
         loss_function_list = {
-            'Cross Entropy': torch.nn.CrossEntropyLoss()
+            'Cross Entropy': nn.CrossEntropyLoss(),
+            'MSE': nn.MSELoss()
         }
         if loss_function_name in loss_function_list:
             return loss_function_list[loss_function_name]
@@ -131,7 +130,7 @@ class template:
         return self.loss_function
     
     def get_loss_function_list(self):
-        loss_function_list = ['Cross Entropy']
+        loss_function_list = ['Cross Entropy', 'MSE']
         print('Acceptable loss functions: ', loss_function_list)
 
     def train_epoch(self):
@@ -209,16 +208,17 @@ class template:
             return self.best_model
         else:
             return self.model
+        
+    def test(self, dataloader):
+        self.model.eval()
+        predict_list =[]
+        with torch.no_grad():
+            with tqdm(dataloader, unit='batch', desc='Test') as tqdm_loader:
+                for index, (image) in enumerate(tqdm_loader):
 
-if __name__ == '__main__':
-    transform = transforms.Compose([
-    transforms.ToTensor(),
-    transforms.Normalize(
-            mean = [0.485, 0.456, 0.406],
-            std = [0.229, 0.224, 0.225]
-        )
-    ])
-    trainset = torchvision.datasets.CIFAR10(root = './data', train = True, download = True, transform = transform)
-    validset = torchvision.datasets.CIFAR10(root = './data', train = False, download = True, transform = transform)
-    model = template(model = 'HarDNet68', loss_function = 'Cross Entropy', optimizer = 'AdamW', train_dataset = trainset, valid_dataset = validset, class_num = 10, use_ttach = True)
-    model.train_and_valid()
+                    image = image.to(device = self.device)
+                    predict = self.model(image).detach().cpu().argmax(dim=1)
+
+                    predict_list.append(predict)
+        predict_list = np.concatenate(predict_list,axis=0)
+        return predict_list
