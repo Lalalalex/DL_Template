@@ -14,6 +14,9 @@
 ```
 git clone https://github.com/Lalalalex/DL-Template.git
 ```
+```
+pip install -r requirement.txt
+```
 
 ##  2. <a name='ExampleCode'></a>Example Code
 ```python
