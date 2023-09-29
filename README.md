@@ -1,11 +1,21 @@
 # DL Template for Image Classification
 
-## Clone Repo
+* 1. [Clone Repo](#CloneRepo)
+* 2. [Example Code](#ExampleCode)
+* 3. [Dataset Requierment](#DatasetRequierment)
+	* 3.1. [Training](#Training)
+	* 3.2. [Testing](#Testing)
+	* 3.3. [A Sample Dataset Code](#ASampleDatasetCode)
+* 4. [Tutorial](#Tutorial)
+	* 4.1. [Overview](#Overview)
+	* 4.2. [ParamaterS](#ParamaterS)
+
+##  1. <a name='CloneRepo'></a>Clone Repo
 ```
 git clone https://github.com/Lalalalex/DL-Template.git
 ```
 
-## Example Code
+##  2. <a name='ExampleCode'></a>Example Code
 ```python
 import torchvision
 import torchvision.transforms as transforms
@@ -27,15 +37,15 @@ model.train_and_valid()
 #predict = model.test(testset)
 ```
 
-## Dataset Requierment
-### Training
+##  3. <a name='DatasetRequierment'></a>Dataset Requierment
+###  3.1. <a name='Training'></a>Training
 Dataset should output [image, label].
 ```python
 class Dataset(Dataset):
     def __getitem__(self, index):
         return images[index], labels[index]
 ```
-### Testing
+###  3.2. <a name='Testing'></a>Testing
 Dataset should output image.
 ```python
 class Dataset(Dataset):
@@ -43,7 +53,7 @@ class Dataset(Dataset):
         return images[index]
 ```
 
-### A Sample Dataset Code
+###  3.3. <a name='ASampleDatasetCode'></a>A Sample Dataset Code
 ```python
 class Dataset(Dataset):
     def __init__(self, df, is_test_model = False, transforms = None):
@@ -69,8 +79,8 @@ class Dataset(Dataset):
         return image_RGB
 ```
 
-## Tutorial
-### Overview
+##  4. <a name='Tutorial'></a>Tutorial
+###  4.1. <a name='Overview'></a>Overview
 ```python
 class Template:
     def __init__(self, class_num: int, train_dataset: Dataset, valid_dataset: Dataset, 
@@ -130,7 +140,7 @@ class Template:
 
 ```
 
-### ParamaterS
+###  4.2. <a name='ParamaterS'></a>ParamaterS
 - **class_num: int**
     - The number of class to classifier
 - **train_dataset: Dataset**
