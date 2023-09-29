@@ -140,7 +140,7 @@ class Template:
 
 ```
 
-###  4.2. <a name='ParamaterS'></a>ParamaterS
+###  4.2. <a name='ParamaterS'></a>Paramaters
 - **class_num: int**
     - The number of class to classifier
 - **train_dataset: Dataset**
