@@ -3,12 +3,12 @@
 * 1. [Clone Repo](#CloneRepo)
 * 2. [Example Code](#ExampleCode)
 * 3. [Dataset Requierment](#DatasetRequierment)
-	* 3.1. [Training](#Training)
-	* 3.2. [Testing](#Testing)
-	* 3.3. [A Sample Dataset Code](#ASampleDatasetCode)
+	* a. [Training](#Training)
+	* b. [Testing](#Testing)
+	* c. [A Sample Dataset Code](#ASampleDatasetCode)
 * 4. [Tutorial](#Tutorial)
-	* 4.1. [Overview](#Overview)
-	* 4.2. [ParamaterS](#ParamaterS)
+	* a. [Overview](#Overview)
+	* b. [ParamaterS](#ParamaterS)
 
 ##  1. <a name='CloneRepo'></a>Clone Repo
 ```
