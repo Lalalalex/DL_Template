@@ -36,7 +36,7 @@ trainset = torchvision.datasets.CIFAR10(root = './data', train = True, download 
 validset = torchvision.datasets.CIFAR10(root = './data', train = False, download = True, transform = transform)
 
 model = Template(class_num = 10, train_dataset = trainset, valid_dataset = validset)
-model.train_and_valid()
+model.train_and_valid(epoch = 40)
 #predict = model.test(testset)
 ```
 
