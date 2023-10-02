@@ -12,7 +12,7 @@
 * 5. [Customize](#Customize)
 ##  1. <a name='CloneRepo'></a>Clone Repo
 ```
-git clone https://github.com/Lalalalex/DL-Template.git
+git clone https://github.com/Lalalalex/DL_Template.git
 ```
 ```
 pip install -r requirement.txt
