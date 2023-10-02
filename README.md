@@ -22,7 +22,7 @@ pip install -r requirement.txt
 ```python
 import torchvision
 import torchvision.transforms as transforms
-from template import template
+from template import Template
 
 transform = transforms.Compose([
 transforms.ToTensor(),
@@ -35,9 +35,9 @@ transforms.Normalize(
 trainset = torchvision.datasets.CIFAR10(root = './data', train = True, download = True, transform = transform)
 validset = torchvision.datasets.CIFAR10(root = './data', train = False, download = True, transform = transform)
 
-model = Template(class_num = 10, train_dataset = trainset, valid_dataset = validset)
-model.train_and_valid(epoch = 40)
-#predict = model.test(testset)
+template = Template(class_num = 10, train_dataset = trainset, valid_dataset = validset)
+template.train_and_valid(epoch = 40)
+#predict = template.test(testset)
 ```
 
 ##  3. <a name='DatasetRequierment'></a>Dataset Requierment
@@ -184,3 +184,16 @@ class Template:
     - Using d4_transform() to do ttach
 - device: torch.device
     - The device to use, default = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+##  5. <a name='Customize'></a>Customize
+- You can also use your own model, optimizer, loss function
+```python
+from template import Template
+
+template = Template(class_num = 10, train_dataset = trainset, valid_dataset = validset)
+template.model = your_own_model
+# e.g. template.model = torch.hub.load('NVIDIA/DeepLearningExamples:torchhub', 'nvidia_efficientnet_b0', pretrained=True)
+template.optimizer = your_own_optimizer
+template.loss_function = your_own_loss_function
+template.train_and_valid()
+```
