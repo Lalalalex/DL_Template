@@ -9,7 +9,7 @@
 * 4. [Tutorial](#Tutorial)
 	* a. [Overview](#Overview)
 	* b. [ParamaterS](#ParamaterS)
-
+* 5. [Template](#Template)
 ##  1. <a name='CloneRepo'></a>Clone Repo
 ```
 git clone https://github.com/Lalalalex/DL-Template.git
