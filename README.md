@@ -135,7 +135,7 @@ class Template:
             return self.best_model
         else:
             return self.model
-        # Train and valid self.model all epoch.
+        # Train and valid self.model all epochs.
         
     def test(self, dataloader):
         return predict_list
